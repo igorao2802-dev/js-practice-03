@@ -1,10 +1,11 @@
 // ==========================================
 // ОБЩИЕ ДАННЫЕ (Глобальная область видимости)
 // ==========================================
-// Эти числа видны всем функциям в файле. Они здесь,
-// чтобы не искать их по всему коду, если формулы изменятся.
-const MALE_BONUS = 5;
-const FEMALE_BONUS = -161;
+// Когда функция calculateBMR пытается использовать переменные COEFFICIENT,
+// она сначала ищет их в своей локальной области. Не найдя там,
+// JS обращается во внешнюю (глобальную) область и находит их там.
+const COEFFICIENT_MALE = 5;
+const COEFFICIENT_FEMALE = -161;
 
 // ==========================================
 // ЗАДАНИЕ 1: КАЛЬКУЛЯТОР ИМТ
@@ -16,6 +17,15 @@ const FEMALE_BONUS = -161;
 function calculateBMI(weight, height) {
   let heightInMeters = height / 100;
   return weight / (heightInMeters * heightInMeters);
+}
+
+function getBMICategory(bmi) {
+  if (bmi < 18.5) return "Дефицит массы тела";
+  if (bmi < 25) return "Норма";
+  if (bmi < 30) return "Избыточная масса тела";
+  if (bmi < 35) return "Ожирение I степени";
+  if (bmi < 40) return "Ожирение II степени";
+  return "Ожирение III степени";
 }
 
 function handleBMI() {
@@ -49,7 +59,10 @@ function handleBMI() {
   }
 
   let bmi = calculateBMI(weight, height);
-  res.innerText = "Ваш ИМТ: " + bmi.toFixed(1);
+  let category = getBMICategory(bmi);
+
+  // Выводим число ИМТ и медицинскую категорию
+  res.innerText = "Ваш ИМТ: " + bmi.toFixed(1) + " (" + category + ")";
   console.log("handleBMI вызвана");
 }
 
@@ -60,7 +73,9 @@ function handleBMI() {
 // ТИП: Function Expression
 // ПОЧЕМУ: Мы записываем функцию в переменную. Она не "всплывает",
 // поэтому её нельзя вызвать, пока код до неё не дойдет. Это делает структуру
-// кода строже. Функция ожидает своей очереди.
+// кода строже. Функция ожидает своей очереди выполнения.
+// Названия функций "KgToLbs", "KgToLbs" изменено так, чтобы они лучше соответствовали
+// требованию нейминга: "глагол-существительное".
 const convertKgToLbs = function (kg) {
   return kg * 2.20462;
 };
@@ -110,8 +125,9 @@ function handleLbsToKg() {
 // от логики обработки кнопок, делая код более организованным».
 function calculateBMR(weight, height, age, gender) {
   let base = 10 * weight + 6.25 * height - 5 * age;
-  if (gender === "male") return base + MALE_BONUS;
-  return base + FEMALE_BONUS;
+  // Используем if/else для выбора пола
+  if (gender === "male") return base + COEFFICIENT_MALE;
+  return base + COEFFICIENT_FEMALE;
 }
 
 function handleBMR() {
