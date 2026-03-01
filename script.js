@@ -1,68 +1,66 @@
-// =============================================================================
-// ОБЩИЕ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ И КОНСТАНТЫ (Scope & Hoisting demo)
-// =============================================================================
+// ==========================================
+// ОБЩИЕ ДАННЫЕ (Глобальная область видимости)
+// ==========================================
+// Эти числа видны всем функциям в файле. Они здесь,
+// чтобы не искать их по всему коду, если формулы изменятся.
+const MALE_BONUS = 5;
+const FEMALE_BONUS = -161;
 
-// Глобальные константы для Задания 3 (доступны всем функциям ниже через Lexical Environment)
-const MALE_OFFSET = 5;
-const FEMALE_OFFSET = -161;
+// ==========================================
+// ЗАДАНИЕ 1: КАЛЬКУЛЯТОР ИМТ
+// ==========================================
 
-// =============================================================================
-// Задание 1: Калькулятор ИМТ
-// =============================================================================
-
-// Выбрал Function Declaration, так как это классический способ определения функции.
-// Благодаря Hoisting, её можно объявить в конце файла, а вызвать в начале.
+// ТИП: Function Declaration
+// ПОЧЕМУ: это классический способ. Главный плюс — "всплытие" (Hoisting).
+// Мы можем вызвать эту функцию в коде даже выше того места, где она написана.
 function calculateBMI(weight, height) {
   let heightInMeters = height / 100;
   return weight / (heightInMeters * heightInMeters);
 }
 
-// Функция для определения категории (согласно чек-листу: "ИМТ с категорией")
-function getBMICategory(bmi) {
-  if (bmi < 18.5) return "Дефицит массы тела";
-  if (bmi < 25) return "Норма";
-  if (bmi < 30) return "Избыточный вес";
-  return "Ожирение";
-}
-
 function handleBMI() {
-  // 1. Получить значения веса и роста
-  let weight = parseFloat(document.getElementById("weightBMI").value);
-  let height = parseFloat(document.getElementById("heightBMI").value);
-  let resultElement = document.getElementById("bmiResult");
+  let weightInput = document.getElementById("weightBMI");
+  let heightInput = document.getElementById("heightBMI");
+  let res = document.getElementById("bmiResult");
 
-  // 2. Проверить валидность (согласно "Валидация полей форм.docx")
-  if (isNaN(weight) || isNaN(height)) {
-    resultElement.innerText = "Ошибка: Поля не могут быть пустыми";
+  // Устанавливаем зеленый цвет по умолчанию (для валидного ответа)
+  res.style.color = "green";
+
+  let weight = parseFloat(weightInput.value);
+  let height = parseFloat(heightInput.value);
+
+  // ВАЛИДАЦИЯ
+  // isNaN проверяет пустоту, isFinite проверяет число на "бесконечность"
+  if (
+    isNaN(weight) ||
+    isNaN(height) ||
+    !isFinite(weight) ||
+    !isFinite(height)
+  ) {
+    res.innerText = "Ошибка: Введите правильные числа в оба поля";
+    res.style.color = "red";
     return;
   }
-  if (!isFinite(weight) || !isFinite(height)) {
-    resultElement.innerText =
-      "Ошибка: Введено слишком большое значение (Infinity)";
-    return;
-  }
-  if (weight < 2 || weight > 500 || height < 30 || height > 300) {
-    resultElement.innerText =
-      "Ошибка: Введены нелогичные данные (Вес 2-500кг, Рост 30-300см)";
+  // Проверка логических диапазонов (по заданию и здравому смыслу)
+  if (weight < 20 || weight > 300 || height < 50 || height > 250) {
+    res.innerText = "Ошибка: Вес должен быть 20-300 кг, рост 50-250 см";
+    res.style.color = "red";
     return;
   }
 
-  // 3. Рассчитать ИМТ
   let bmi = calculateBMI(weight, height);
-  let category = getBMICategory(bmi);
-
-  // 4. Вывести результат в #bmiResult
-  resultElement.innerText =
-    "Ваш ИМТ: " + bmi.toFixed(1) + " (" + category + ")";
+  res.innerText = "Ваш ИМТ: " + bmi.toFixed(1);
   console.log("handleBMI вызвана");
 }
 
-// =============================================================================
-// Задание 2: Конвертер веса
-// =============================================================================
+// ==========================================
+// ЗАДАНИЕ 2: КОНВЕРТЕР ВЕСА
+// ==========================================
 
-// Выбрал Function Expression.
-// Это защищает код: функцию нельзя вызвать до того, как она будет инициализирована в скрипте (нет Hoisting).
+// ТИП: Function Expression
+// ПОЧЕМУ: Мы записываем функцию в переменную. Она не "всплывает",
+// поэтому её нельзя вызвать, пока код до неё не дойдет. Это делает структуру
+// кода строже. Функция ожидает своей очереди.
 const convertKgToLbs = function (kg) {
   return kg * 2.20462;
 };
@@ -72,134 +70,142 @@ const convertLbsToKg = function (lbs) {
 };
 
 function handleKgToLbs() {
-  // Получить значение кг
-  let kg = parseFloat(document.getElementById("weightInput").value);
+  let val = parseFloat(document.getElementById("weightInput").value);
   let res = document.getElementById("weightResult");
+  res.style.color = "green";
 
-  // Проверить валидность
-  if (isNaN(kg) || !isFinite(kg) || kg <= 0 || kg > 1000000) {
-    res.innerText = "Ошибка: Введите число от 0 до 1 000 000";
+  if (isNaN(val) || !isFinite(val) || val <= 0 || val > 1000000) {
+    res.innerText = "Ошибка: Введите число от 0.1 до 1 000 000";
+    res.style.color = "red";
     return;
   }
 
-  // Конвертировать в фунты и вывести результат
-  res.innerText = kg + " кг = " + convertKgToLbs(kg).toFixed(2) + " фунтов";
+  res.innerText = val + " кг = " + convertKgToLbs(val).toFixed(2) + " фунтов";
   console.log("handleKgToLbs вызвана");
 }
 
 function handleLbsToKg() {
-  // Аналогично, конвертация фунтов в кг
-  let lbs = parseFloat(document.getElementById("weightInput").value);
+  let val = parseFloat(document.getElementById("weightInput").value);
   let res = document.getElementById("weightResult");
+  res.style.color = "green";
 
-  if (isNaN(lbs) || !isFinite(lbs) || lbs <= 0 || lbs > 1000000) {
-    res.innerText = "Ошибка: Введите корректный вес";
+  if (isNaN(val) || !isFinite(val) || val <= 0 || val > 1000000) {
+    res.innerText = "Ошибка: Введите число от 0.1 до 1 000 000";
+    res.style.color = "red";
     return;
   }
 
-  res.innerText = lbs + " фунтов = " + convertLbsToKg(lbs).toFixed(2) + " кг";
+  res.innerText = val + " фунтов = " + convertLbsToKg(val).toFixed(2) + " кг";
   console.log("handleLbsToKg вызвана");
 }
 
-// =============================================================================
-// Задание 3: Калькулятор калорий (BMR)
-// =============================================================================
+// ==========================================
+// ЗАДАНИЕ 3: КАЛЬКУЛЯТОР КАЛОРИЙ (BMR)
+// ==========================================
 
-// Выбрал Function Declaration.
-// Демонстрирует область видимости: функция берет MALE_OFFSET и FEMALE_OFFSET из внешней (глобальной) области.
+// ТИП: Function Declaration
+// ПОЧЕМУ: потому что эти функции отвечают только за логику вычислений
+// и не зависят от HTML-разметки. Также из-за хоистинга: такие функции доступны
+// в любой части скрипта, что позволяет отделить логику вычислений
+// от логики обработки кнопок, делая код более организованным».
 function calculateBMR(weight, height, age, gender) {
-  let baseBMR = 10 * weight + 6.25 * height - 5 * age;
-
-  if (gender === "male") {
-    return baseBMR + MALE_OFFSET;
-  } else {
-    return baseBMR + FEMALE_OFFSET;
-  }
+  let base = 10 * weight + 6.25 * height - 5 * age;
+  if (gender === "male") return base + MALE_BONUS;
+  return base + FEMALE_BONUS;
 }
 
 function handleBMR() {
-  // Получить вес, рост, возраст, пол
   let w = parseFloat(document.getElementById("weightBMR").value);
   let h = parseFloat(document.getElementById("heightBMR").value);
   let a = parseFloat(document.getElementById("ageBMR").value);
   let g = document.getElementById("genderBMR").value;
   let res = document.getElementById("bmrResult");
 
-  // Проверить валидность (По документу: целое число для возраста, макс. 200 лет, Infinity)
-  if (isNaN(w) || isNaN(h) || isNaN(a) || g === "") {
-    res.innerText = "Ошибка: Заполните все поля";
-    return;
-  }
-  if (!isFinite(w) || !isFinite(h) || !isFinite(a)) {
-    res.innerText = "Ошибка: Введены слишком большие числа";
-    return;
-  }
-  if (!Number.isInteger(a)) {
-    res.innerText = "Ошибка: Возраст должен быть целым числом";
-    return;
-  }
-  if (a < 1 || a > 200) {
-    res.innerText = "Ошибка: Возраст не может превышать 200 лет";
+  res.style.color = "green";
+
+  // Валидация веса и роста
+  if (
+    isNaN(w) ||
+    isNaN(h) ||
+    !isFinite(w) ||
+    !isFinite(h) ||
+    w < 20 ||
+    w > 300 ||
+    h < 50 ||
+    h > 250
+  ) {
+    res.innerText = "Ошибка: Вес (20-300), Рост (50-250)";
+    res.style.color = "red";
     return;
   }
 
-  // Рассчитать BMR и вывести результат
-  let bmrResult = calculateBMR(w, h, a, g);
-  res.innerText = "Ваша норма: " + Math.round(bmrResult) + " ккал/день";
+  // Валидация возраста (целое число, предел 200 лет)
+  if (isNaN(a) || !isFinite(a) || !Number.isInteger(a) || a < 1 || a > 200) {
+    res.innerText = "Ошибка: Возраст должен быть целым числом до 200 лет";
+    res.style.color = "red";
+    return;
+  }
+
+  if (g === "") {
+    res.innerText = "Ошибка: Выберите пол";
+    res.style.color = "red";
+    return;
+  }
+
+  let result = calculateBMR(w, h, a, g);
+  res.innerText = "Ваша норма: " + Math.round(result) + " ккал/день";
   console.log("handleBMR вызвана");
 }
 
-// =============================================================================
-// Задание 4: Конвертер роста
-// =============================================================================
+// ==========================================
+// ЗАДАНИЕ 4: КОНВЕРТЕР РОСТА
+// ==========================================
 
-// Выбрал стрелочные функции (Arrow Functions).
-// Они максимально лаконичны для простых математических операций и не создают своего контекста (this).
-const cmToInches = (cm) => cm / 2.54;
-const feetInchesToCm = (ft, inc) => (ft * 12 + inc) * 2.54;
+// ТИП: Стрелочные функции (Arrow Functions)
+// ПОЧЕМУ: это самый современный и короткий способ. Идеально подходит
+// для маленьких функций, которые просто делают одно математическое действие.
+const getInches = (cm) => cm / 2.54;
+const getCm = (ft, inc) => (ft * 12 + inc) * 2.54;
 
 function handleCmToFeet() {
-  // Получить рост в см
   let cm = parseFloat(document.getElementById("heightInput").value);
   let res = document.getElementById("heightResult");
+  res.style.color = "green";
 
-  // Проверить валидность
-  if (isNaN(cm) || !isFinite(cm) || cm < 30 || cm > 300) {
-    res.innerText = "Ошибка: Укажите рост от 30 до 300 см";
+  if (isNaN(cm) || !isFinite(cm) || cm < 50 || cm > 250) {
+    res.innerText = "Ошибка: Рост должен быть от 50 до 250 см";
+    res.style.color = "red";
     return;
   }
 
-  // Конвертировать в футы и дюймы
-  let totalInches = cmToInches(cm);
+  let totalInches = getInches(cm);
   let feet = Math.floor(totalInches / 12);
   let inches = Math.round(totalInches % 12);
-
-  // Вывести результат
   res.innerText = feet + " футов " + inches + " дюймов";
   console.log("handleCmToFeet вызвана");
 }
 
 function handleFeetToCm() {
-  // Конвертация фунтов и дюймов в кг
   let ft = parseFloat(document.getElementById("feetInput").value);
   let inc = parseFloat(document.getElementById("inchesInput").value);
   let res = document.getElementById("heightResult2");
+  res.style.color = "green";
 
-  // Валидация (целые числа, логические диапазоны)
-  if (isNaN(ft) || isNaN(inc)) {
-    res.innerText = "Ошибка: Заполните оба поля";
-    return;
-  }
-  if (!Number.isInteger(ft) || !Number.isInteger(inc)) {
-    res.innerText = "Ошибка: Введите целые числа";
-    return;
-  }
-  if (ft < 0 || ft > 10 || inc < 0 || inc > 11) {
-    res.innerText = "Ошибка: Футы (0-10), Дюймы (0-11)";
+  // Валидация системы мер (футы и дюймы всегда целые числа)
+  if (
+    !Number.isInteger(ft) ||
+    !Number.isInteger(inc) ||
+    ft < 0 ||
+    ft > 8 ||
+    inc < 0 ||
+    inc > 11
+  ) {
+    res.innerText = "Ошибка: Введите целые футы (0-8) и дюймы (0-11)";
+    res.style.color = "red";
     return;
   }
 
-  let cmResult = feetInchesToCm(ft, inc);
-  res.innerText = Math.round(cmResult) + " см";
+  let cm = getCm(ft, inc);
+  res.innerText = Math.round(cm) + " см";
   console.log("handleFeetToCm вызвана");
 }
